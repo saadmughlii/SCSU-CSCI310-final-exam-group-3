@@ -3,10 +3,13 @@ import threading
 import time
 
 # Global variables
-board_layout = [' '] * 9           # 3x3 Tic-Tac-Toe board
+board_layout = [' '] * 25           # 5x5 game board
 lock = threading.Lock()
 game_over = False
-numbers = list(range(0, 9))  # number of spots available in Tic-Tac-Toe board
+numbers = list(range(0, 25))  # number of spots available in game board
+mountain_location = 0
+carrot_locations = [0,0,0,0] #there will be 5 carrots on the board
+
 
 # Winning combinations (indices)
 win_conditions = [
@@ -57,21 +60,36 @@ def pick_number(player):
 def print_board():
     global board_layout
     # Print the board
-    print("\nTic-Tac-Toe Board:")
-    for i in range(0, 9, 3):  #Take a number from 0 to 9 every 3 steps, excluding 9
-        print(" | ".join(board_layout[i:i + 3]))
-        if i < 6:
-            print("-" * 10)  # Print a separator line
+    print("\nGame board:")
+    for i in range(0, 24, 5):  #Take a number from 0 to 24 every 5 steps, excluding 9
+        print(" | ".join(board_layout[i:i + 5]))
+        if i < 20:
+            print("-" * 17)  # Print a separator line
     print() # print new line
 
 def main():
-    t1 = threading.Thread(target=pick_number, args=("X",))  # creating a thread object that will run pick_number function
-    t2 = threading.Thread(target=pick_number, args=("O",))
+    #bugs bunny :)
+    b = threading.Thread(target=pick_number, args=("B",))  # creating a thread object that will run pick_number function
+    
+    #taz devil >:)
+    d = threading.Thread(target=pick_number, args=("D",))
+    
+    #tweety :>
+    
+    t = threading.Thread(target=pick_number, args=("T",))
+    
+    #marvin the martian (8)
+    m = threading.Thread(target=pick_number, args=("M",))
 
-    t1.start()  # this activates the thread
-    t2.start()
-    t1.join()  # this will wait for t1 to finish before proceeding
-    t2.join()
+    b.start()  # this activates the thread
+    d.start()
+    t.start()
+    m.start()
+
+    b.join()  # this will wait for b to finish before proceeding
+    d.join()
+    t.join()
+    m.join()
 
     return 0
 
