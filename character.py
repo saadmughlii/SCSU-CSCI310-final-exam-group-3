@@ -6,6 +6,7 @@ class Character:
         self.column = column
         self.name = name
         self.has_flag = False
+        self.has_carrot = False  # ✅ new boolean for carrot
         self.board_size = board_size
 
     def set_row(self, new_row: int):
@@ -20,13 +21,20 @@ class Character:
     def change_flag(self):
         self.has_flag = not self.has_flag
 
+    def pick_carrot(self):
+        self.has_carrot = True
+        self.name = f"{self.name}(C)"  # append (C) to the name
+    
+    def got_carrot(self):
+        return self.has_carrot
+
     def move(self):
         row_chg = random.randint(-1, 1)
         column_chg = random.randint(-1, 1)
         self.row += row_chg
         self.column += column_chg
 
-        # keep within 0–4 boundaries (5×5 grid)
+        # keep within board boundaries
         self.row = max(0, min(self.row, self.board_size - 1))
         self.column = max(0, min(self.column, self.board_size - 1))
 
@@ -46,4 +54,5 @@ class Character:
         return self.column
 
     def __repr__(self):
-        return f"Character(name='{self.name}', row={self.row}, column={self.column}, has_flag={self.has_flag})"
+        return (f"Character(name='{self.name}', row={self.row}, column={self.column}, "
+                f"has_flag={self.has_flag}, has_carrot={self.has_carrot})")
