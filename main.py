@@ -27,6 +27,7 @@ def get_free_location(exclude_locations):
         if pos not in exclude_locations:
             return pos
 
+
 carrot_locations = []
 exclude = [mountain_location]
 
@@ -64,17 +65,14 @@ def print_board():
 
 def check_winner(character):
     return (
-        character.has_carrot
-        and [character.row, character.column] == mountain_location
+        character.has_carrot and [character.row, character.column] == mountain_location
     )
 
 
 def get_valid_moves(character, pid):
     moves = []
     occupied = {
-        tuple(current_locations[p])
-        for p in player_ids
-        if p != pid and is_alive[p]
+        tuple(current_locations[p]) for p in player_ids if p != pid and is_alive[p]
     }
 
     for dr in [-1, 0, 1]:
@@ -104,10 +102,7 @@ def get_valid_moves(character, pid):
 def get_empty_location():
     while True:
         pos = [random.randint(0, BOARD_SIZE - 1), random.randint(0, BOARD_SIZE - 1)]
-        if (
-            pos not in current_locations.values()
-            and pos not in carrot_locations
-        ):
+        if pos not in current_locations.values() and pos not in carrot_locations:
             return pos
 
 
@@ -154,7 +149,10 @@ def take_turn(player_id):
             with lock:
                 for pid in player_ids:
                     if pid != "M" and is_alive[pid]:
-                        if current_locations.get(pid) == [character.row, character.column]:
+                        if current_locations.get(pid) == [
+                            character.row,
+                            character.column,
+                        ]:
 
                             print(f"M killed {pid} at {new_pos}!")
 
@@ -166,19 +164,38 @@ def take_turn(player_id):
 
                             # Kill player
                             is_alive[pid] = False
-                            board[current_locations[pid][0]][current_locations[pid][1]] = " "
+                            board[current_locations[pid][0]][
+                                current_locations[pid][1]
+                            ] = " "
                             del current_locations[pid]
                             break
 
         # Check carrot pickup
         for carrot in list(carrot_locations):  # iterate on copy to safely remove
             if carrot == [character.row, character.column]:
-                character.pick_carrot()  # changes name to M(C), B(C), etc.
-                print(f"{character.name} picked a carrot!\n")
-                print()
-                carrot_locations.remove(carrot)
-                # Update board immediately
-                board[character.row][character.column] = character.name
+
+                # Only M can pick unlimited carrots.
+                # Other players can pick only 1.
+                if character.name.startswith("M"):
+                    # M can always pick
+                    character.pick_carrot()
+                    print(f"{character.name} picked a carrot!\n")
+                    carrot_locations.remove(carrot)
+                    board[character.row][character.column] = character.name
+
+                else:
+                    # Other players pick only if they don't already have one
+                    if not character.has_carrot:
+                        character.pick_carrot()
+                        print(f"{character.name} picked a carrot!\n")
+                        carrot_locations.remove(carrot)
+                        board[character.row][character.column] = character.name
+                    else:
+                        # Player already has a carrot → cannot take more
+                        print(
+                            f"{character.name} already has a carrot and cannot pick another."
+                        )
+
                 break
 
         # Update position on board
@@ -199,7 +216,9 @@ def take_turn(player_id):
         # Check winner
         if check_winner(character):
             with lock:
-                print(f"GAME OVER: {character.name} wins by reaching mountain with a carrot!")
+                print(
+                    f"GAME OVER: {character.name} wins by reaching mountain with a carrot!"
+                )
                 game_over = True
             return
 
